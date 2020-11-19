@@ -57,7 +57,9 @@ export class LocalStorageCache implements ICache {
   public save(entry: CacheEntry): void {
     const cacheKey = createKey(entry);
     const payload = wrapCacheEntry(entry);
-
+    console.log('cache save. Key: ' + cacheKey)
+    console.log('payload:')
+    console.log(payload)
     window.localStorage.setItem(cacheKey, JSON.stringify(payload));
   }
 
@@ -68,11 +70,16 @@ export class LocalStorageCache implements ICache {
     const cacheKey = createKey(key);
     const payload = this.readJson(cacheKey);
     const nowSeconds = Math.floor(Date.now() / 1000);
-
+    console.log('cache read')
+    console.log(`key: ${cacheKey}`)
+    console.log('payload:')
+    console.log(payload)
     if (!payload) return;
 
     if (payload.expiresAt - expiryAdjustmentSeconds < nowSeconds) {
+      console.log('Token expires in less then 60 second.')
       if (payload.body.refresh_token) {
+        console.log('Payload has refresh token.')
         const newPayload = this.stripData(payload);
         this.writeJson(cacheKey, newPayload);
 

@@ -478,6 +478,7 @@ export default class Auth0Client {
   public async handleRedirectCallback(
     url: string = window.location.href
   ): Promise<RedirectLoginResult> {
+    console.log('handleRedirectCallback')
     const queryStringFragments = url.split('?').slice(1);
 
     if (queryStringFragments.length === 0) {
@@ -524,6 +525,9 @@ export default class Auth0Client {
 
     const authResult = await oauthToken(tokenOptions, this.worker);
 
+    console.log('AuthResult:')
+    console.log(authResult)
+
     const decodedToken = this._verifyIdToken(
       authResult.id_token,
       transaction.nonce,
@@ -538,7 +542,9 @@ export default class Auth0Client {
       client_id: this.options.client_id
     };
 
+    console.log('before cache save.')
     this.cache.save(cacheEntry);
+    console.log('after cache save.')
 
     this.cookieStorage.save('auth0.is.authenticated', true, {
       daysUntilExpire: this.sessionCheckExpiryDays
@@ -605,6 +611,7 @@ export default class Auth0Client {
    * @param options
    */
   public async getTokenSilently(options: GetTokenSilentlyOptions = {}) {
+    console.log('getTokenSilently')
     const { ignoreCache, ...getTokenOptions } = {
       audience: this.options.audience,
       ignoreCache: false,
@@ -613,6 +620,7 @@ export default class Auth0Client {
     };
 
     const getAccessTokenFromCache = () => {
+      console.log('Before get cache.')
       const cache = this.cache.get(
         {
           scope: getTokenOptions.scope,
@@ -621,6 +629,11 @@ export default class Auth0Client {
         },
         60 // get a new token if within 60 seconds of expiring
       );
+      console.log('After get cache')
+      
+      console.log('Cache')
+      console.log(cache)
+      
 
       return cache && cache.access_token;
     };
@@ -630,6 +643,7 @@ export default class Auth0Client {
     if (!ignoreCache) {
       let accessToken = getAccessTokenFromCache();
       if (accessToken) {
+        console.log('Access token from cache.')
         return accessToken;
       }
     }
@@ -641,6 +655,7 @@ export default class Auth0Client {
       if (!ignoreCache) {
         let accessToken = getAccessTokenFromCache();
         if (accessToken) {
+          console.log('Access token from cache. With lock.')
           return accessToken;
         }
       }
